@@ -18,7 +18,7 @@ export class UsersController {
 
     @Get()
     getUsers() {
-        return this.usersService.getUsers();
+        return this.usersService.getUsers().populate(['settings', 'posts']);
     }
 
     @Get(':id')
@@ -28,22 +28,36 @@ export class UsersController {
 
         if (!isValid) throw new HttpException("Invalid Credentials", 400)
 
-        const findUser = await this.usersService.getUserById(id);
+        const findUser = await this.usersService.getUserById(id).populate('settings');
         if (!findUser) throw new HttpException("User not found", 404);
         return findUser;
     }
 
     @Patch(':id')
-    updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-
-        console.log(updateUserDto)
+    async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
 
         const isValid = mongoose.Types.ObjectId.isValid(id);
 
-        if(!isValid) throw new HttpException("Invalid Credentials", 400);
+        if (!isValid) throw new HttpException("Invalid Credentials", 400);
 
-        const updatedUser = this.usersService.updateUser(id, updateUserDto);
+        const updatedUser = await this.usersService.updateUser(id, updateUserDto);
+
+        if (!updatedUser) throw new HttpException('User not found', 404);
 
         return updatedUser;
+    }
+
+    @Delete(':id')
+    async deleteUser(@Param('id') id: string) {
+
+        const isValid = mongoose.Types.ObjectId.isValid(id);
+
+        if (!isValid) throw new HttpException("Invalid Credentials", 400);
+
+        const deletedUser = await this.usersService.deleteUser(id);
+
+        if (!deletedUser) throw new HttpException('User not found', 404);
+
+        return;
     }
 }

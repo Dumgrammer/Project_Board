@@ -1,4 +1,19 @@
-import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsBoolean, IsOptional, ValidateNested } from 'class-validator';
+import  { Type } from 'class-transformer';
+
+export class CreateUserSettingsDto {
+    @IsOptional()
+    @IsBoolean()
+    receivedNotifications?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    receivedSms?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    receivedEmail?: boolean;
+}
 
 export class RegisterUserDto {
     @IsNotEmpty()
@@ -17,11 +32,17 @@ export class RegisterUserDto {
     email: string;
 
     @IsNotEmpty()
-    @IsString()
+    @IsString() 
     password: string
 
     @IsString()
     profilePic?: string;
+
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => CreateUserSettingsDto)
+    settings?: CreateUserSettingsDto;
+
 }
 
 export class UpdateUserDto {
